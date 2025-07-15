@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app_main {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 20px 8%;
+  gap: 5%;
+}
+
+.task_column {
+  width: 33.33%;
+  margin-top: 20px;
+}
