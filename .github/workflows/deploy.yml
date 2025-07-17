@@ -1,0 +1,52 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main # Trigger bila push ke branch main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "✅ SSH connected. Starting deployment...t"
+
+            cd /var/www/tasktrek.namix.space/react-tasktrek || {
+              echo "❌ Folder not found"; exit 1;
+            }
+
+            echo "📥 Pulling latest code..."
+            git pull origin main || {
+              echo "❌ Git pull failed"; exit 1;
+            }
+
+            echo "🐳 Stopping existing container (if any)..."
+            docker stop tasktrek || true
+            docker rm tasktrek || true
+
+            echo "🔧 Building Docker image..."
+            docker build -t react-tasktrek . || {
+              echo "❌ Docker build failed"; exit 1;
+            }
+
+            echo "🚀 Running new container..."
+            docker run -d \
+              --name tasktrek \
+              --restart unless-stopped \
+              -p 8086:80 \
+              react-tasktrek || {
+              echo "❌ Docker run failed"; exit 1;
+            }
+
+            echo "✅ Deployment completed successfully!"
