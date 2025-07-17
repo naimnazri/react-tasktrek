@@ -48,5 +48,6 @@ jobs:
               react-tasktrek || {
               echo "❌ Docker run failed"; exit 1;
             }
+              
 
             echo "✅ Deployment completed successfully!"
