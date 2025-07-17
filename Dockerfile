@@ -1,12 +1,16 @@
-FROM node:20-alpine AS build
+# Step 1: Build React app using Vite
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-# Serve the production build using `serve`
+# Step 2: Serve build folder using `serve`
+FROM node:20-alpine
 RUN npm install -g serve
-
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
 EXPOSE 80
-CMD ["serve", "-s", "build", "-l", "80"]
+CMD ["serve", "-s", "dist", "-l", "80"]
+
